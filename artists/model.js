@@ -18,4 +18,5 @@ const Artist = sequelize.define(
 );
 
 //Artist.hasMany(Song);
+
 module.exports = Artist;

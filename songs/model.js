@@ -36,6 +36,6 @@ const Song = sequelize.define(
   }
 );
 
-Song.belongsTo(Artist);
+//Song.hasOne(Artist);
 
 module.exports = Song;
