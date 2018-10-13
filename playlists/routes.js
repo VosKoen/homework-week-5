@@ -36,7 +36,6 @@ router.get("/playlists", auth, (req, res, next) => {
           message: `This user has no playlists`
         });
       }
-
       res.status(200).send({ playlists });
     })
     .catch(error => next(error));

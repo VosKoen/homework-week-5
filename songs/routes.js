@@ -2,6 +2,7 @@ const { Router } = require("express");
 const Song = require("./model");
 const Playlist = require("../playlists/model");
 const auth = require("../auth/middleware");
+const Artist = require("../artists/model")
 
 const router = new Router();
 
@@ -14,7 +15,8 @@ router.get("/playlists/:id/songs", auth, (req, res, next) => {
     return Song.findAll({
       where: {
         playlistId: req.params.id
-      }
+      },
+      include: [Artist]
     })
       .then(songs => {
         if (!songs) {
@@ -51,7 +53,25 @@ router.post("/playlists/:id/songs", auth, (req, res, next) => {
       return res.status(404).send({
         message: `Playlist does not exist for this user`
       });
-    return Song.create(req.body)
+
+    return Artist.findOne({
+      where: {
+        name: req.body.artist
+      }
+    })
+      .then(artist => {
+        if (artist)
+          return Song.create({
+            ...req.body,
+            artistId: artist.id
+          });
+        return Artist.create({ name: req.body.artist }).then(artist =>
+          Song.create({
+            ...req.body,
+            artistId: artist.id
+          })
+        );
+      })
       .then(song => {
         if (!song) {
           return res.status(422).send({
