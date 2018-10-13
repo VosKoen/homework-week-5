@@ -71,17 +71,27 @@ router.put("/playlists/:idPlaylist/songs/:idSong", auth, (req, res, next) => {
         return res.status(404).send({
           message: `Playlist does not exist for this user`
         });
-      return Song.findById(req.params.idSong)
-        .then(song => {
-          if (!song || song.playlistId !== parseInt(req.params.idPlaylist)) {
-            return res.status(404).send({
-              message: `Song not found on this playlist`
-            });
-          }
-          return song.update(req.body).then(() => res.status(200).send(song));
-        })
-        .catch(error => next(error));
+      return Song.findById(req.params.idSong);
     })
+    .then(song => {
+      if (!song || song.playlistId !== parseInt(req.params.idPlaylist)) {
+        return res.status(404).send({
+          message: `Song not found on this playlist`
+        });
+      }
+
+      return Playlist.findById(req.body.playlistId);
+    })
+    .then(playlist => {
+      if (!playlist || playlist.userId !== req.user.id)
+        return res.status(404).send({
+          message: `The target playlist does not exist for this user`
+        });
+
+      return Song.findById(req.params.idSong);
+    })
+    .then(song => song.update(req.body))
+    .then(song => res.status(200).send(song))
     .catch(error => next(error));
 });
 
