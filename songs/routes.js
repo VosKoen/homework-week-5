@@ -64,8 +64,8 @@ router.post("/playlists/:id/songs", auth, (req, res, next) => {
   });
 });
 
-router.delete("/playlists/:id/songs/:idSong", auth, (req, res, next) => {
-  Playlist.findById(req.params.id)
+router.put("/playlists/:idPlaylist/songs/:idSong", auth, (req, res, next) => {
+  Playlist.findById(req.params.idPlaylist)
     .then(playlist => {
       if (!playlist || playlist.userId !== req.user.id)
         return res.status(404).send({
@@ -73,20 +73,45 @@ router.delete("/playlists/:id/songs/:idSong", auth, (req, res, next) => {
         });
       return Song.findById(req.params.idSong)
         .then(song => {
-          if (!song) {
+          if (!song || song.playlistId !== parseInt(req.params.idPlaylist)) {
             return res.status(404).send({
-              message: `Song does not exist`
+              message: `Song not found on this playlist`
             });
           }
-          return song.destroy().then(() =>
-            res.status(204).send({
-              message: `Song was deleted`
-            })
-          );
+          return song.update(req.body).then(() => res.status(200).send(song));
         })
         .catch(error => next(error));
     })
     .catch(error => next(error));
 });
+
+router.delete(
+  "/playlists/:idPlaylist/songs/:idSong",
+  auth,
+  (req, res, next) => {
+    Playlist.findById(req.params.idPlaylist)
+      .then(playlist => {
+        if (!playlist || playlist.userId !== req.user.id)
+          return res.status(404).send({
+            message: `Playlist does not exist for this user`
+          });
+        return Song.findById(req.params.idSong)
+          .then(song => {
+            if (!song || song.playlistId !== parseInt(req.params.idPlaylist)) {
+              return res.status(404).send({
+                message: `Song not found on this playlist`
+              });
+            }
+            return song.destroy().then(() =>
+              res.status(204).send({
+                message: `Song was deleted`
+              })
+            );
+          })
+          .catch(error => next(error));
+      })
+      .catch(error => next(error));
+  }
+);
 
 module.exports = router;
