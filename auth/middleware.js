@@ -24,7 +24,7 @@ function auth(req, res, next) {
   }
   else {
     res.status(401).send({
-      message: 'Please supply some valid credentials'
+      message: 'Please authenticate first at /tokens'
     })
   }
 }

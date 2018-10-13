@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../db");
-const Song = require("../songs/model")
+const Song = require("../songs/model");
 
 const Playlist = sequelize.define(
   "playlists",
@@ -9,6 +9,10 @@ const Playlist = sequelize.define(
       type: Sequelize.STRING,
       field: "name",
       allowNull: false
+    },
+    userId: {
+      type: Sequelize.INTEGER,
+      field: "user_id"
     }
   },
   {
