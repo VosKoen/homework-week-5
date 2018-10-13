@@ -23,7 +23,7 @@ router.post("/tokens", (req, res) => {
     })
       .then(entity => {
         if (!entity) {
-          res.status(400).send({
+          res.status(404).send({
             message: "User with that email does not exist"
           });
         }
@@ -35,7 +35,7 @@ router.post("/tokens", (req, res) => {
             jwt: toJWT({ userId: entity.id })
           });
         } else {
-          res.status(400).send({
+          res.status(401).send({
             message: "Password was incorrect"
           });
         }

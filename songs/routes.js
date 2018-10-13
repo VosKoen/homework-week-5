@@ -22,14 +22,30 @@ router.get("/playlists/:id/songs", auth, (req, res, next) => {
             message: `Songs could not be retrieved`
           });
         }
-        res.send({ songs });
+        res.status(200).send({ songs });
       })
       .catch(error => next(error));
   });
 });
 
-router.post("/playlists/:id/songs", auth,(req, res, next) => {
+router.post("/playlists/:id/songs", auth, (req, res, next) => {
+  if (!req.body.title)
+    return res.status(422).send({
+      message: `Song cannot be saved without a title`
+    });
+
+  if (!req.body.album)
+    return res.status(422).send({
+      message: `Song cannot be saved without an album`
+    });
+    
+  if (!req.body.artist)
+    return res.status(422).send({
+      message: `Song cannot be saved without an artist`
+    });
+
   req.body.playlistId = req.params.id;
+
   Playlist.findById(req.params.id).then(playlist => {
     if (!playlist || playlist.userId !== req.user.id)
       return res.status(404).send({
